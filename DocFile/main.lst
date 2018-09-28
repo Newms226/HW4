@@ -1,0 +1,222 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; Counts the number of vowels in a String and makes them
+                        uppercase.
+    2 00000000         ;
+    3 00000000         ; ---------------------------REGISTER SET-UP------------
+                       ----------------------
+    4 00000000         ; r0 := Working Byte
+    5 00000000         ; r1 := Working pointer
+    6 00000000         ; r2 := Working count of vowels
+    7 00000000         ; r3 := Working offset from String pointer
+    8 00000000         ; r4 := 
+    9 00000000         ; r5 :=
+   10 00000000         ; r6 := String Pointer
+   11 00000000         
+   12 00000000         
+   13 00000000                 THUMB
+   14 00000000                 AREA             |.text|, CODE, ALIGN=4
+   15 00000000                 EXPORT           Start
+   16 00000000 F04F 0000       MOV              r0, #0
+   17 00000004         
+   18 00000004         Start
+   19 00000004 491E            LDR              r1, =testStr
+   20 00000006         base
+   21 00000006 F811 0B01       LDRB             r0, [r1], #1 ; load byte & incr
+                                                            ement address point
+                                                            er
+   22 0000000A 2800            CMP              r0, #0
+   23 0000000C BF18 F000 
+              F803             BLNE             vcheck      ; Else branch to vo
+                                                            wel check
+   24 00000012         
+   25 00000012         
+   26 00000012         stop
+   27 00000012 491C            LDR              r1, =prevCount
+   28 00000014 600A            STR              r2, [r1]
+   29 00000016 E7FE            B                .
+   30 00000018         
+   31 00000018         ;----------------------------VOWEL CHECK----------------
+                       ----------------------
+   32 00000018         ; Examines a char to see if it's a vowel. If the test pa
+                       sses, it changes the 
+   33 00000018         ; case of the char to upper in the *original* string and
+                        increases the value
+   34 00000018         ; count by one.
+   35 00000018         vcheck
+   36 00000018 F010 0F41       TST              r0, #'A'
+   37 0000001C BF1F F010 
+              0F45             TSTNE            r0, #'E'
+   38 00000022 F010 0F49       TSTNE            r0, #'I'
+   39 00000026 F010 0F4F       TSTNE            r0, #'O'
+   40 0000002A F010 0F55       TSTNE            r0, #'U'
+   41 0000002E D00F            BEQ              increment
+   42 00000030 BF1F F010 
+              0F61             TSTNE            r0, #'a'    ; Test for vowels
+   43 00000036 F010 0F65       TSTNE            r0, #'e'
+   44 0000003A F010 0F69       TSTNE            r0, #'i'
+   45 0000003E F010 0F6F       TSTNE            r0, #'o'
+   46 00000042 BF18 F010 
+              0F75             TSTNE            r0, #'u'
+   47 00000048         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   48 00000048         toUpper
+   49 00000048 BF08 3820       SUBEQ            r0, r0, #32 ; Convert to Upperc
+                                                            ase
+   50 0000004C F841 0C01       STR              r0, [r1, #-1] ; Store into memo
+                                                            ry, increase pointe
+                                                            r register
+   51 00000050         
+   52 00000050         increment
+   53 00000050 F102 0201       ADD              r2, r2, #1  ; Increase the vowe
+                                                            l count
+   54 00000054 4770            BX               lr          ; Branch back to lo
+                                                            op start
+   55 00000056         
+   56 00000056         
+   57 00000056         ; ---------Range Check----------
+   58 00000056         ; Sets r3 to #1 if within a set range. Equivilant to::
+   59 00000056         ;
+   60 00000056         ; if (low <= x < up) SF = 1
+   61 00000056         ; else SF = 0
+   62 00000056         
+   63 00000056         ;
+   64 00000056         ; RESETS THE VALUE OF THE STATUS FLAGS
+   65 00000056         ; -------------------------------
+   66 00000056 42A0    rcheck  CMP              r0, r4      ; See if greater th
+                                                            an lower bound
+   67 00000058 BFA8 4285       CMPGE            r5, r0      ; If greater than (
+                                                            or equal to) the lo
+                                                            wer bound, 
+   68 0000005C         ;   Test if less than upper bound
+   69 0000005C BFC4 2300       MOVGT            r3, #0      ; If both checks pa
+                                                            ssed, prep reset of
+                                                             Z status flag
+   70 00000060 2B00            CMPGT            r3, #0      ; Set Z status flag
+                                                             if tests passed
+   71 00000062 4770            BX               lr          ; Branch back to l
+   72 00000064         
+   73 00000064 74 68 69 
+              73 69 73 
+              61 73 74 
+              72 69 6E 
+              67 77 69 
+              74 68 76 
+              6F 77 65 
+              6C 73 00 testStr DCB              "thisisastringwithvowels", 0
+   74 0000007C 00      prevCount
+                               DCB              0
+   75 0000007D         
+   76 0000007D 00 00 00        ALIGN
+   77 00000080                 END
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4 --apcs=interw
+ork --depend=.\main.d -o.\main.o -I.\RTE\_SimpleProject -IC:\Keil_v5\ARM\PACK\A
+RM\CMSIS\5.4.0\CMSIS\Core\Include -IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Dev
+ice\Include\TM4C123 --predefine="__EVAL SETA 1" --predefine="__UVISION_VERSION 
+SETA 526" --predefine="_RTE_ SETA 1" --predefine="TM4C123GH6PM SETA 1" --list=.
+\main.lst main.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 14 in file main.s
+   Uses
+      None
+Comment: .text unused
+Start 00000004
+
+Symbol: Start
+   Definitions
+      At line 18 in file main.s
+   Uses
+      At line 15 in file main.s
+Comment: Start used once
+base 00000006
+
+Symbol: base
+   Definitions
+      At line 20 in file main.s
+   Uses
+      None
+Comment: base unused
+increment 00000050
+
+Symbol: increment
+   Definitions
+      At line 52 in file main.s
+   Uses
+      At line 41 in file main.s
+Comment: increment used once
+prevCount 0000007C
+
+Symbol: prevCount
+   Definitions
+      At line 74 in file main.s
+   Uses
+      At line 27 in file main.s
+Comment: prevCount used once
+rcheck 00000056
+
+Symbol: rcheck
+   Definitions
+      At line 66 in file main.s
+   Uses
+      None
+Comment: rcheck unused
+stop 00000012
+
+Symbol: stop
+   Definitions
+      At line 26 in file main.s
+   Uses
+      None
+Comment: stop unused
+testStr 00000064
+
+Symbol: testStr
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 73 in file main.s
+   Uses
+      At line 19 in file main.s
+Comment: testStr used once
+toUpper 00000048
+
+Symbol: toUpper
+   Definitions
+      At line 48 in file main.s
+   Uses
+      None
+Comment: toUpper unused
+vcheck 00000018
+
+Symbol: vcheck
+   Definitions
+      At line 35 in file main.s
+   Uses
+      At line 23 in file main.s
+Comment: vcheck used once
+10 symbols
+346 symbols in table
