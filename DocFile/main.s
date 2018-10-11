@@ -11,10 +11,10 @@
 
 
             THUMB    
-            AREA    |.text|, CODE, ALIGN=4
+            AREA    |.text|, CODE, READONLY, ALIGN=4
             EXPORT  Start
 Start		
-	        LDR     r1, =testStr
+	        ADR     r1, testStr
 base        
             LDRB    r0, [r1], #1 ; load byte & increment address pointer
             CMP     r0, #0			
@@ -39,7 +39,8 @@ vcheck
 			TSTNE   r0, #'e'
 			TSTNE   r0, #'i'
 			TSTNE   r0, #'o'
-			TSTNE   r0, #'u'      
+			TSTNE   r0, #'u'   
+            BNE     base			
 	   
 toUpper	    
             SUBEQ   r0, r0, #32  ; Convert to Uppercase
@@ -47,7 +48,7 @@ toUpper
 			
 increment
 			ADD     r2, r2, #1   ; Increase the vowel count
-			BX      lr           ; Branch back to loop start
+			B       base           ; Branch back to loop start
 
  
 ; ---------Range Check----------
@@ -70,14 +71,4 @@ testStr 	DCB     "thisisastringwithvowels", 0
 prevCount   DCB     0
 
             ALIGN
-            END
-		
-;#############################################################################
-; DATA:
-;   - testString: Value 
-            AREA    DATA, ALIGN=4 
-			EXPORT  testStr [DATA]
-			EXPORT  prevCount [DATA]
-
-
             END
